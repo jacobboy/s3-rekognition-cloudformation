@@ -95,7 +95,7 @@ Resources:
               print('JobId: {}'.format(job_id))
               return job_id
       MemorySize: 128
-      Timeout: 3
+      Timeout: 10
       Runtime: python3.6
       Environment:
         Variables:
@@ -219,10 +219,14 @@ Resources:
 
           def lambda_handler(event, context):
               print('Received event: ' + json.dumps(event, indent=2))
-              message = json.loads(event['Records'][0]['Sns']['Message'])
 
-              face_detection = rekog.get_face_detection(JobId=message['JobId'])
+              message = json.loads(event['Records'][0]['Sns']['Message'])
+              job_id = message['JobId']
+
+              face_detection = rekog.get_face_detection(JobId=job_id)
               face_detection_json = json.dumps(face_detection)
+
+              print('Received face detection JobId: {}'.format(job_id))
 
               filename = os.path.basename(message['Video']['S3ObjectName'])
               key = os.path.join(PATH, filename + '.json')
@@ -233,7 +237,7 @@ Resources:
 
               print('Wrote ' + os.path.join(BUCKET, key))
       MemorySize: 128
-      Timeout: 3
+      Timeout: 60
       Runtime: python3.6
       Environment:
         Variables:
